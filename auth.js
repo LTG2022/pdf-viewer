@@ -45,8 +45,13 @@ async function handleUpload(e) {
     uploadStatus.style.color = 'white';
 
     try {
+        // Sanitize the filename to create a safe path for Supabase Storage
+        const originalFileName = file.name;
+        // This regex removes characters that are not letters, numbers, dots, hyphens, underscores, or common Chinese characters.
+        const sanitizedFileName = originalFileName.replace(/[^a-zA-Z0-9.\\-_\u4e00-\u9fa5]/g, '_');
+
         // 1. Upload file to Storage
-        const filePath = `${category}/${file.name}`;
+        const filePath = `${category}/${sanitizedFileName}`;
         const { error: uploadError } = await supabaseClient.storage
             .from('pdf-files')
             .upload(filePath, file, {
@@ -67,14 +72,14 @@ async function handleUpload(e) {
         const { error: dbError } = await supabaseClient
             .from('pdfs')
             .insert({
-                file_name: file.name,
+                file_name: originalFileName, // Use the original name for display
                 category: category,
                 public_url: publicURL,
             });
 
         if (dbError) throw dbError;
 
-        uploadStatus.textContent = `文件 "${file.name}" 上传成功！`;
+        uploadStatus.textContent = `文件 "${originalFileName}" 上传成功！`;
         uploadStatus.style.color = 'green';
         uploadForm.reset();
 
