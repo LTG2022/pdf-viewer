@@ -31,7 +31,7 @@ function showLoginPage() {
 async function handleUpload(e) {
     e.preventDefault();
 
-    const category = uploadForm.category.value;
+    const category = uploadForm.category.value.trim();
     const file = uploadForm['pdf-file'].files[0];
 
     if (!category || !file) {
@@ -45,18 +45,17 @@ async function handleUpload(e) {
     uploadStatus.style.color = 'white';
 
     try {
-        // Sanitize the filename to create a safe path for Supabase Storage
         const originalFileName = file.name;
-        // This regex removes characters that are not letters, numbers, dots, hyphens, underscores, or common Chinese characters.
-        const sanitizedFileName = originalFileName.replace(/[^a-zA-Z0-9.\\-_\u4e00-\u9fa5]/g, '_');
+        const fileExtension = originalFileName.split('.').pop();
+        const newFileName = `${crypto.randomUUID()}.${fileExtension}`;
 
-        // 1. Upload file to Storage
-        const filePath = `${category}/${sanitizedFileName}`;
+        // 1. Upload file to Storage with the new safe name
+        const filePath = `${category}/${newFileName}`;
         const { error: uploadError } = await supabaseClient.storage
             .from('pdf-files')
             .upload(filePath, file, {
                 cacheControl: '3600',
-                upsert: true, // Overwrite file if it exists
+                upsert: false, // No need to upsert, names are unique
             });
 
         if (uploadError) throw uploadError;
@@ -68,7 +67,7 @@ async function handleUpload(e) {
 
         const publicURL = urlData.publicUrl;
 
-        // 3. Insert file metadata into the database
+        // 3. Insert file metadata into the database, storing the ORIGINAL filename for display
         const { error: dbError } = await supabaseClient
             .from('pdfs')
             .insert({
