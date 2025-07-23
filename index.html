@@ -4,52 +4,219 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF 资料列表</title>
+    <title>产品资料库</title>
     <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg-color: #2a2a2a;
+            --text-color: #e0e0e0;
+            --primary-color: #00aaff;
+            --border-color: #444;
+            --hover-bg-color: #333;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 40px auto;
-            max-width: 650px;
-            line-height: 1.6;
-            font-size: 18px;
-            color: #444;
-            padding: 0 10px;
-        }
-
-        h1 {
-            line-height: 1.2;
-        }
-
-        a {
-            color: #007BFF;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        ul {
-            list-style-type: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        li {
-            margin: 10px 0;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            color: var(--primary-color);
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--hover-bg-color);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border-color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .pdf-card {
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            /* For animation */
+        }
+
+        .pdf-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .pdf-card a {
+            text-decoration: none;
+            color: var(--text-color);
+            padding: 20px;
+            display: block;
+            width: 100%;
+        }
+
+        .pdf-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: var(--primary-color);
+            word-wrap: break-word;
+        }
+
+        .pdf-card p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+
+        /* Animation for filtering */
+        .pdf-card.hide {
+            display: none;
         }
     </style>
 </head>
 
 <body>
-    <h1>PDF 资料列表</h1>
-    <ul>
-        <li><a href="pdfs/7.1.00.006-YL-A03%E9%9D%A2%E6%9D%BF%E6%8E%A7%E5%88%B6%E7%BA%BF%E8%B7%AF%E6%9D%BF01.pdf"
-                target="_blank">7.1.00.006-YL-A03面板控制线路板01.pdf</a></li>
-        <li><a href="pdfs/7.1.00.026-YL-A01%E7%94%B5%E6%9C%BA%E6%8E%A7%E5%88%B6%E7%BA%BF%E8%B7%AF%E6%9D%BF04%E9%83%A8%E4%BB%B6.pdf"
-                target="_blank">7.1.00.026-YL-A01电机控制线路板04部件.pdf</a></li>
-        <li><a href="pdfs/7.1.00.031-YL-A02%E7%94%B5%E6%9C%BA%E6%8E%A7%E5%88%B6%E7%BA%BF%E8%B7%AF%E6%9D%BF05%E9%83%A8%E4%BB%B6(%E5%AE%9A%E4%BD%8D%E6%9C%BA%E6%9E%84).pdf"
-                target="_blank">7.1.00.031-YL-A02电机控制线路板05部件(定位机构).pdf</a></li>
-    </ul>
+
+    <div class="container">
+        <header>
+            <h1>产品技术资料库</h1>
+        </header>
+
+        <div class="filters" id="filters">
+            <button class="filter-btn active" data-filter="all">显示全部</button>
+            <button class="filter-btn" data-filter="JC-ESWL-B">JC-ESWL-B</button>
+            <button class="filter-btn" data-filter="JC-ESWL-B-I">JC-ESWL-B-I</button>
+            <button class="filter-btn" data-filter="JC-ESWL-B-III">JC-ESWL-B-III</button>
+            <button class="filter-btn" data-filter="JC-ESWL-XB">JC-ESWL-XB</button>
+        </div>
+
+        <div class="pdf-grid" id="pdf-grid">
+            <!-- PDF Cards will be injected here by script -->
+        </div>
+    </div>
+
+    <script>
+        const pdfData = [
+            { "category": "JC-ESWL-B", "file": "JC-ESWL-B/JC-ESWL-BIII电气图纸(原理图).pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.004-YL-A01电机控制线路板07组件(移动机构).pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.006-YL-A03面板控制线路板01.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.011-YL-A01抽真空板组件.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.026-YL-A01电机控制线路板04部件.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.031-YL-A02电机控制线路板05部件(定位机构).pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.032-YL-A01_A02面板控制线路板05部件(定位机构).pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.032-YL-A01面板控制线路板05.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.042-YL-A01电器主控制电路板02部件.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.043-YL-A01电机控制线路板06部件.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.052-YL-A03电器控制线路板003组件(02五代机主电器控制线路板).pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.054-YL-A01高频电源线路板组件002.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.00.055-YL-A01高频电源线路板组件003.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.01.001-YL-A01高压电容箱001部件.pdf" },
+            { "category": "JC-ESWL-B-I", "file": "JC-ESWL-B-I/7.1.03.006-YL-A01主电器控制组件002.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_AC-DC 12-36V-3.3-36V_2024-08-14.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_单路步进控制板_2024-08-14.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_按键采集板_2024-08-14.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_水汽模块控制线路板组件_2024-08-14.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_焦点运动控制板_2024-08-15.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_直流电机控制板_2024-08-14.pdf" },
+            { "category": "JC-ESWL-B-III", "file": "JC-ESWL-B-III/SCH_高频冲击波电源控制线路板组件_2024-08-14 .pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.058_YL-A02高频X光控制线路板组件.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.059_YL-A02水汽模块控制线路板.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.060_YL-A01双定位主副台面板控制线路板.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.061_YL-A01高频冲击波电源控制线路.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.062_YL-A02继电器通断驱动板.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.063_YL-A02电机控制+数据采集转接板.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.064_YL-A02_数据采集+数据矫正线路板组件.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.065_YL-A01_双定位功能附加模块线路板组件.pdf" },
+            { "category": "JC-ESWL-XB", "file": "JC-ESWL-XB/7.1.00.066-69_YL-A01_双定位功能附加模块线路板组件.dwg.pdf" }
+        ];
+
+        const grid = document.getElementById('pdf-grid');
+        const filters = document.getElementById('filters');
+
+        // Function to render PDF cards
+        function renderPdfs(filter = 'all') {
+            grid.innerHTML = '';
+            const filteredData = filter === 'all'
+                ? pdfData
+                : pdfData.filter(p => p.category === filter);
+
+            filteredData.forEach(pdf => {
+                const card = document.createElement('div');
+                card.className = 'pdf-card';
+                card.dataset.category = pdf.category;
+
+                const fileName = pdf.file.split('/').pop();
+
+                card.innerHTML = `
+                    <a href="${encodeURI(pdf.file)}" target="_blank">
+                        <h3>${fileName}</h3>
+                        <p>${pdf.category}</p>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Event listener for filter buttons
+        filters.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                document.querySelector('.filter-btn.active').classList.remove('active');
+                e.target.classList.add('active');
+                renderPdfs(e.target.dataset.filter);
+            }
+        });
+
+        // Initial render
+        renderPdfs();
+    </script>
+
 </body>
 
 </html>
