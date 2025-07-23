@@ -3,7 +3,7 @@ const ADMIN_PASSWORD = '4997'; // 这是您的后台登录密码
 const SUPABASE_URL = 'https://cgkkwbsmlmmepxzmhcyi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNna2t3YnNtbG1tZXB4em1oY3lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyNTc5NDksImV4cCI6MjA2ODgzMzk0OX0.RMjEd6ge8Kl09W-MM_cIg23lqM7g6sFib2QUVp7LUsU';
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- DOM Elements ---
 const loginSection = document.getElementById('login-section');
@@ -47,7 +47,7 @@ async function handleUpload(e) {
     try {
         // 1. Upload file to Storage
         const filePath = `${category}/${file.name}`;
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseClient.storage
             .from('pdf-files')
             .upload(filePath, file, {
                 cacheControl: '3600',
@@ -57,14 +57,14 @@ async function handleUpload(e) {
         if (uploadError) throw uploadError;
 
         // 2. Get public URL of the uploaded file
-        const { data: urlData } = supabase.storage
+        const { data: urlData } = supabaseClient.storage
             .from('pdf-files')
             .getPublicUrl(filePath);
 
         const publicURL = urlData.publicUrl;
 
         // 3. Insert file metadata into the database
-        const { error: dbError } = await supabase
+        const { error: dbError } = await supabaseClient
             .from('pdfs')
             .insert({
                 file_name: file.name,
